@@ -1,0 +1,72 @@
+/* Tailwind CSS directives */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Import Roboto Mono font */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;600;700&display=swap');
+
+/* Custom styles can be added below */
+.font-mono {
+  font-family: 'Roboto Mono', monospace;
+}
+
+/* Orb effect */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  z-index: 0;
+  animation: pulse 15s infinite alternate;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.2;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.25;
+  }
+}
+
+/* Text size adjustments */
+.text-xs {
+  font-size: 0.7rem;
+  line-height: 1rem;
+}
+
+.text-sm {
+  font-size: 0.8rem;
+  line-height: 1.25rem;
+}
+
+.text-base {
+  font-size: 0.9rem;
+  line-height: 1.5rem;
+}
+
+.text-lg {
+  font-size: 1rem;
+  line-height: 1.75rem;
+}
+
+.text-xl {
+  font-size: 1.1rem;
+  line-height: 1.75rem;
+}
+
+.text-2xl {
+  font-size: 1.3rem;
+  line-height: 2rem;
+}
+
+.text-3xl {
+  font-size: 1.5rem;
+  line-height: 2.25rem;
+}
