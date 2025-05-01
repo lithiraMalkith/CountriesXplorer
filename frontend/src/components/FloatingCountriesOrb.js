@@ -21,7 +21,7 @@ const FloatingCountriesOrb = ({ countries }) => {
     const orbMaterial = new THREE.MeshBasicMaterial({ 
       color: 0x3b82f6, 
       transparent: true, 
-      opacity: 0.1,
+      opacity: 0.3,
       wireframe: true
     });
     const orb = new THREE.Mesh(orbGeometry, orbMaterial);
@@ -32,7 +32,7 @@ const FloatingCountriesOrb = ({ countries }) => {
     const innerOrbMaterial = new THREE.MeshBasicMaterial({ 
       color: 0x60a5fa, 
       transparent: true, 
-      opacity: 0.05
+      opacity: 0.1
     });
     const innerOrb = new THREE.Mesh(innerOrbGeometry, innerOrbMaterial);
     scene.add(innerOrb);
@@ -51,7 +51,7 @@ const FloatingCountriesOrb = ({ countries }) => {
       // Draw text on canvas
       context.fillStyle = 'rgba(0, 0, 0, 0)';
       context.fillRect(0, 0, canvas.width, canvas.height);
-      context.font = '20px Roboto Mono';
+      context.font = '24px Roboto Mono';
       context.fillStyle = 'white';
       context.textAlign = 'center';
       context.fillText(country.name.common, canvas.width / 2, canvas.height / 2);
@@ -61,7 +61,7 @@ const FloatingCountriesOrb = ({ countries }) => {
       const material = new THREE.SpriteMaterial({ 
         map: texture,
         transparent: true,
-        opacity: 0.8,
+        opacity: 1.2,
         alphaTest: 0.1
       });
       
@@ -99,10 +99,10 @@ const FloatingCountriesOrb = ({ countries }) => {
       frame = requestAnimationFrame(animate);
       
       // Rotate the orb slowly
-      orb.rotation.x += 0.0002;
-      orb.rotation.y += 0.0002;
-      innerOrb.rotation.x -= 0.0001;
-      innerOrb.rotation.y -= 0.0001;
+      orb.rotation.x += 0.0006;
+      orb.rotation.y += 0.0006;
+      innerOrb.rotation.x -= 0.0003;
+      innerOrb.rotation.y -= 0.0003;
       
       // Move country sprites
       countrySprites.forEach(item => {

@@ -14,7 +14,7 @@ import AboutPage from './pages/AboutPage';
 export const AuthContext = React.createContext();
 
 // Set base URL for axios
-axios.defaults.baseURL = 'http://localhost:5000';
+axios.defaults.baseURL = 'https://countriesxplorer.onrender.com';
 
 function App() {
   const [user, setUser] = useState(null);
