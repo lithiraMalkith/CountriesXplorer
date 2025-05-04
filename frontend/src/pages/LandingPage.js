@@ -67,7 +67,7 @@ const LandingPage = () => {
           <div className="flex items-center space-x-6">
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
-                <span className="text-gray-300">Welcome, <span className="text-white font-mono">{user.name}</span></span>
+                <span className="text-gray-300" id="welcome">Welcome, <span className="text-white font-mono">{user.name}</span></span>
                 <Link 
                   to="/home" 
                   className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-600 to-blue-400 text-white hover:from-blue-700 hover:to-blue-500 transition-all"
@@ -77,11 +77,12 @@ const LandingPage = () => {
               </div>
             ) : (
               <>
-                <Link to="/login" className="text-gray-300 hover:text-white transition-colors">
+                <Link to="/login" className="text-gray-300 hover:text-white transition-colors" id="signinBtn">
                   Sign In
                 </Link>
                 <Link 
                   to="/register" 
+                  id="signupBtn"
                   className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-600 to-blue-400 text-white hover:from-blue-700 hover:to-blue-500 transition-all"
                 >
                   Sign Up

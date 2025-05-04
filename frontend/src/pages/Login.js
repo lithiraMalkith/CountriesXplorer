@@ -60,7 +60,7 @@ const Login = () => {
         
         <div className="bg-transparent border border-gray-800 rounded-lg p-8 shadow-lg backdrop-blur-sm">
           {error && (
-            <div className="bg-red-900 bg-opacity-20 border border-red-800 text-red-300 px-4 py-3 rounded mb-4 text-sm">
+            <div className="bg-red-900 bg-opacity-20 border border-red-800 text-red-300 px-4 py-3 rounded mb-4 text-sm" id="invalidCd">
               {error}
             </div>
           )}
@@ -101,6 +101,7 @@ const Login = () => {
             
             <button 
               type="submit" 
+              id="loginBtn"
               className="w-full bg-gradient-to-r from-blue-600 to-blue-400 text-white py-2 rounded-md hover:from-blue-700 hover:to-blue-500 transition-all"
               disabled={loading}
             >

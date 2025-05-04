@@ -41,6 +41,60 @@ const FloatingCountriesOrb = ({ countries }) => {
     const countrySprites = [];
     const sampleCountries = countries.slice(0, 30); // Limit to 30 countries for performance
     
+    // Function to create a sonar pulse effect at a given position
+    const createSonarPulse = (position, color = 0x3b82f6) => {
+      const pulseGroup = new THREE.Group();
+      
+      // Create the center dot
+      const dotGeometry = new THREE.SphereGeometry(0.05, 16, 16);
+      const dotMaterial = new THREE.MeshBasicMaterial({ 
+        color: color,
+        transparent: false,
+        opacity: 1
+      });
+      const dot = new THREE.Mesh(dotGeometry, dotMaterial);
+      pulseGroup.add(dot);
+      
+      // Create the pulse rings (3 rings with different scales and opacities)
+      const rings = [];
+      for (let i = 0; i < 3; i++) {
+        // Use more segments (64) to ensure perfect circles
+        const ringGeometry = new THREE.RingGeometry(0.1, 0.12, 64);
+        const ringMaterial = new THREE.MeshBasicMaterial({
+          color: color,
+          transparent: true,
+          opacity: 0.7,
+          side: THREE.DoubleSide,
+          depthTest: false, // Prevent z-fighting
+          depthWrite: false // Prevent depth buffer writing
+        });
+        const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+        ring.scale.set(1, 1, 1);
+        ring.userData = {
+          initialOpacity: 0.7,
+          // Reduce pulse speed by 3x
+          pulseSpeed: (0.02 + (i * 0.01)) / 3, 
+          pulseSize: 1,
+          maxPulseSize: 2 + i, // Different max sizes
+          active: false,
+          delay: i * 20 // Stagger the start of each ring's animation
+        };
+        pulseGroup.add(ring);
+        rings.push(ring);
+      }
+      
+      // Set position
+      pulseGroup.position.copy(position);
+      
+      // Add to scene
+      scene.add(pulseGroup);
+      
+      return { pulseGroup, rings, position };
+    };
+    
+    // We'll create the pulses after creating the country sprites
+    const locationPulses = [];
+    
     sampleCountries.forEach((country, index) => {
       // Create a canvas for the text
       const canvas = document.createElement('canvas');
@@ -49,8 +103,7 @@ const FloatingCountriesOrb = ({ countries }) => {
       canvas.height = 128;
       
       // Draw text on canvas
-      context.fillStyle = 'rgba(0, 0, 0, 0)';
-      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.clearRect(0, 0, canvas.width, canvas.height);
       context.font = '24px Roboto Mono';
       context.fillStyle = 'white';
       context.textAlign = 'center';
@@ -58,6 +111,7 @@ const FloatingCountriesOrb = ({ countries }) => {
       
       // Create texture from canvas
       const texture = new THREE.CanvasTexture(canvas);
+      texture.premultiplyAlpha = true; // Fix transparency issues
       const material = new THREE.SpriteMaterial({ 
         map: texture,
         transparent: true,
@@ -78,6 +132,15 @@ const FloatingCountriesOrb = ({ countries }) => {
       
       sprite.scale.set(2, 1, 1);
       scene.add(sprite);
+      
+      // Create a sonar pulse at the same position as the country name
+      const blueColors = [0x3b82f6, 0x60a5fa, 0x93c5fd, 0x2563eb, 0x1d4ed8];
+      const pulse = createSonarPulse(sprite.position.clone(), blueColors[index % blueColors.length]);
+      
+      // Store the country sprite reference with the pulse
+      pulse.countrySprite = sprite;
+      locationPulses.push(pulse);
+      
       countrySprites.push({
         sprite,
         initialPosition: { ...sprite.position },
@@ -86,7 +149,8 @@ const FloatingCountriesOrb = ({ countries }) => {
           Math.random() - 0.5,
           Math.random() - 0.5,
           Math.random() - 0.5
-        ).normalize()
+        ).normalize(),
+        pulse: pulse // Store reference to the pulse
       });
     });
     
@@ -95,14 +159,54 @@ const FloatingCountriesOrb = ({ countries }) => {
     
     // Animation
     let frame = 0;
+    let time = 0;
     const animate = () => {
       frame = requestAnimationFrame(animate);
+      time += 0.01;
       
       // Rotate the orb slowly
       orb.rotation.x += 0.0006;
       orb.rotation.y += 0.0006;
       innerOrb.rotation.x -= 0.0003;
       innerOrb.rotation.y -= 0.0003;
+      
+      // Animate sonar pulses
+      locationPulses.forEach(pulse => {
+        // Update pulse position to follow the country sprite
+        if (pulse.countrySprite) {
+          pulse.pulseGroup.position.copy(pulse.countrySprite.position);
+        }
+        
+        pulse.rings.forEach((ring, i) => {
+          const userData = ring.userData;
+          
+          // Start animation after delay
+          if (time > userData.delay * 0.1) {
+            userData.active = true;
+          }
+          
+          if (userData.active) {
+            // Increase the size
+            userData.pulseSize += userData.pulseSpeed;
+            
+            // Reset when reaching max size
+            if (userData.pulseSize > userData.maxPulseSize) {
+              userData.pulseSize = 1;
+            }
+            
+            // Update scale and opacity based on pulse size
+            // Use the same scale for x and y to ensure perfect circles
+            ring.scale.set(userData.pulseSize, userData.pulseSize, 1);
+            
+            // Decrease opacity as the ring expands
+            const opacityFactor = 1 - ((userData.pulseSize - 1) / (userData.maxPulseSize - 1));
+            ring.material.opacity = userData.initialOpacity * opacityFactor;
+          }
+          
+          // Make the pulse group look at the camera
+          pulse.pulseGroup.lookAt(camera.position);
+        });
+      });
       
       // Move country sprites
       countrySprites.forEach(item => {
@@ -150,6 +254,18 @@ const FloatingCountriesOrb = ({ countries }) => {
           item.sprite.material.map.dispose();
         }
         item.sprite.material.dispose();
+      });
+      
+      // Dispose location pulses
+      locationPulses.forEach(pulse => {
+        pulse.rings.forEach(ring => {
+          ring.geometry.dispose();
+          ring.material.dispose();
+        });
+        pulse.pulseGroup.children.forEach(child => {
+          if (child.geometry) child.geometry.dispose();
+          if (child.material) child.material.dispose();
+        });
       });
       
       orbGeometry.dispose();
